@@ -21,6 +21,7 @@ public class TeachersLoad {
     private int english;
     private int language;
     private int sum;
+    private String test;
 
     /**
      * @return the name
@@ -160,6 +161,20 @@ public class TeachersLoad {
      */
     public void setSum(int sun) {
         this.sum = sun;
+    }
+
+    /**
+     * @return the test
+     */
+    public String getTest() {
+        return test;
+    }
+
+    /**
+     * @param test the test to set
+     */
+    public void setTest(String test) {
+        this.test = test;
     }
 
 }

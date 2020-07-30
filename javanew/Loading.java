@@ -5,7 +5,10 @@
  */
 package StudentManagement;
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -79,9 +82,9 @@ public class Loading extends javax.swing.JFrame {
                                     .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                     .addComponent(jPasswordField1, javax.swing.GroupLayout.PREFERRED_SIZE, 134, javax.swing.GroupLayout.PREFERRED_SIZE)))))
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(92, 92, 92)
-                        .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 194, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(97, Short.MAX_VALUE))
+                        .addGap(27, 27, 27)
+                        .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 339, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(34, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -107,6 +110,8 @@ public class Loading extends javax.swing.JFrame {
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
         Load load = new Load();
+        TeachersLoad tl = new TeachersLoad();
+        tl.setId(Integer.parseInt(jTextField1.getText()));
         load.setId(Integer.parseInt(jTextField1.getText()));
         load.setPassword(String.valueOf(jPasswordField1.getPassword()));
         Dbstudentinfo dbs = new Dbstudentinfo();
@@ -123,12 +128,28 @@ public class Loading extends javax.swing.JFrame {
                 tinfo.setVisible(true);
 //                教師画面に
             } else if (result == 1 && load.getId() >= 10100 && load.getId() <= 10403) {
-                Teacher t = new Teacher();
-                this.dispose();
-                t.setVisible(true);
+                if (jTextField1.getText().substring(3).equals("00")) {
+                    Teacher t = new Teacher();
+                    this.dispose();
+                    String str = jTextField1.getText();
+                    t.set(str);
+                    t.setVisible(true);
+                } else {
+                    Teachers ts = new Teachers();
+                    ts.set(jTextField1.getText());
+                    this.dispose();
+                    ts.setVisible(true);
+                }
+//                List<TeachersLoad> tlo = new ArrayList<>();
+//                tlo = dbs.selectT(Integer.valueOf(jTextField1.getText()));
+//                Teacherload tinfo = new Teacherload();
+//                for (TeachersLoad te : tlo) {
+//                    t.set(te.getKurasu());
+//                }
 //                学生画面に
             } else if (result == 1 && load.getId() >= 1010000) {
                 Studentinfo sinfo = new Studentinfo();
+                sinfo.setall(Integer.valueOf(jTextField1.getText()));
                 this.dispose();
                 sinfo.setVisible(true);
             } else {

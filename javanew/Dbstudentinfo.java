@@ -96,6 +96,24 @@ DBからデータ出し,出力データと同じなら、ログインＯＫ
     }
 
     /*
+    login select id
+     */
+    public int selectloginid(int id) throws SQLException {
+        String sql = "select * from login";
+        sql += " where id=";
+        sql += "" + id + "";
+        ResultSet rs = stmt.executeQuery(sql);
+        int result = 0;
+        if (rs != null) {
+            while (rs.next()) {
+                result = 1;
+                return result;
+            }
+        }
+        return result;
+    }
+
+    /*
 add teacherinfo表
      */
     public int addTeacherinfo(TeachersLoad tl) throws SQLException {
@@ -128,8 +146,20 @@ add teacherinfo表
         sql += "subject=";
         sql += "'" + tl.getSubject() + "'";
         sql += " where id=";
-        sql += "" + tl.getId() + ";";
+        sql += "" + tl.getId() + "and kurasu=";
+        sql += "'" + tl.getKurasu() + "' or subject=";
+        sql += "'" + tl.getSubject() + "'";
         System.out.println(sql);
+        stmt.executeUpdate(sql);
+        return 0;
+    }
+
+    public int updateTload(int id, String password) throws SQLException {
+        String sql = "update teacherinfo";
+        sql += " set password=";
+        sql += "'" + password + "'";
+        sql += " where id=";
+        sql += "" + id + ";";
         stmt.executeUpdate(sql);
         return 0;
     }
@@ -140,7 +170,23 @@ add teacherinfo表
     public int selectTload(int id, String kurasu, String subject) throws SQLException {
         String sql = "select * from teacherinfo";
         sql += " where id=";
-        sql += "" + id + "or kurasu = ";
+        sql += "" + id + "and kurasu = ";
+        sql += "'" + kurasu + "'and subject =";
+        sql += "'" + subject + "';";
+        ResultSet rs = stmt.executeQuery(sql);
+        int result = 0;
+        if (rs != null) {
+            while (rs.next()) {
+                result = 1;
+                return result;
+            }
+        }
+        return result;
+    }
+
+    public int selectTload(String kurasu, String subject) throws SQLException {
+        String sql = "select * from teacherinfo";
+        sql += " where kurasu =";
         sql += "'" + kurasu + "'and subject =";
         sql += "'" + subject + "';";
         ResultSet rs = stmt.executeQuery(sql);
@@ -172,6 +218,58 @@ add teacherinfo表
         return result;
     }
 
+    public List<TeachersLoad> selectT(int id) throws SQLException {
+        String sql = "select kurasu from teacherinfo";
+        sql += " where id=";
+        sql += "" + id + ";";
+        ResultSet rs = stmt.executeQuery(sql);
+        List<TeachersLoad> tload = new ArrayList<>();
+        if (rs != null) {
+            while (rs.next()) {
+                TeachersLoad tl = new TeachersLoad();
+                tl.setKurasu(rs.getString("kurasu"));
+                tload.add(tl);
+            }
+        }
+        return tload;
+
+    }
+
+    public List<TeachersLoad> selectTs(int id) throws SQLException {
+        String sql = "select subject from teacherinfo";
+        sql += " where id=";
+        sql += "" + id + ";";
+        ResultSet rs = stmt.executeQuery(sql);
+        List<TeachersLoad> tload = new ArrayList<>();
+        if (rs != null) {
+            while (rs.next()) {
+                TeachersLoad tl = new TeachersLoad();
+                tl.setSubject(rs.getString("subject"));
+                tload.add(tl);
+            }
+        }
+        return tload;
+
+    }
+
+    public List<TeachersLoad> selectTsi(int id, String kurasu) throws SQLException {
+        String sql = "select subject from teacherinfo";
+        sql += " where id=";
+        sql += "" + id + "and kurasu=";
+        sql += "'" + kurasu + "';";
+        ResultSet rs = stmt.executeQuery(sql);
+        List<TeachersLoad> tload = new ArrayList<>();
+        if (rs != null) {
+            while (rs.next()) {
+                TeachersLoad tl = new TeachersLoad();
+                tl.setSubject(rs.getString("subject"));
+                tload.add(tl);
+            }
+        }
+        return tload;
+
+    }
+
     /*
     delete 教師表(id)
 
@@ -180,6 +278,18 @@ add teacherinfo表
         String sql = "delete from teacherinfo";
         sql += " where id=";
         sql += "" + id + ";";
+        stmt.executeUpdate(sql);
+        System.out.println(sql);
+        return 0;
+    }
+
+    public int deleteTload(int id, String kurasu, String subject, String name) throws SQLException {
+        String sql = "delete from teacherinfo";
+        sql += " where id=";
+        sql += "" + id + "and kurasu = ";
+        sql += "'" + kurasu + "'and subject =";
+        sql += "'" + subject + "'and name=";
+        sql += "'" + name + "';";
         stmt.executeUpdate(sql);
         System.out.println(sql);
         return 0;
@@ -306,7 +416,6 @@ delete login (id)
  教師　Id曖昧検索　
 
      */
-
     public List<TeachersLoad> liketinfoid(int id) throws SQLException {
         String sql = "select * from teacherinfo";
         sql += " where cast";
@@ -388,6 +497,24 @@ delete login (id)
             }
         }
         return 0;
+    }
+
+    public int selectsinfos(int id) throws SQLException {
+        String sql = "select test from seiseki ";
+        sql += "where id=";
+        sql += "" + id + ";";
+        ResultSet rs = stmt.executeQuery(sql);
+        int result = 0;
+        while (rs.next()) {
+            if (rs.getString(1) != null) {
+                if (rs.getString(1).equals("期末")) {
+                    result = 1;
+                } else {
+                    result = 2;
+                }
+            }
+        }
+        return result;
     }
 
     /*
@@ -543,6 +670,28 @@ delete login (id)
         return tload;
     }
 
+    public List<TeachersLoad> seisekis(int id) throws SQLException {
+        String sql = "select id,test,math,english,langu,sum from seiseki";
+        sql += " where cast";
+        sql += " (id as text) like";
+        sql += " '%" + id + "%';";
+        ResultSet rs = stmt.executeQuery(sql);
+        List<TeachersLoad> tload = new ArrayList<>();
+        if (rs != null) {
+            while (rs.next()) {
+                TeachersLoad tl = new TeachersLoad();
+                tl.setId(rs.getInt("id"));
+                tl.setTest(rs.getString("test"));
+                tl.setMath(rs.getInt("math"));
+                tl.setLanguage(rs.getInt("langu"));
+                tl.setEnglish(rs.getInt("english"));
+                tl.setSum(rs.getInt("sum"));
+                tload.add(tl);
+            }
+        }
+        return tload;
+    }
+
     /*
     student classで成績検索
      */
@@ -571,7 +720,9 @@ delete login (id)
     studentmarks 更新成績
      */
     public int updatemarks(TeachersLoad tl) throws SQLException {
-        String sql = "update studentinformation";
+        String sql = "update seiseki";
+//        sql += " set test=";
+//        sql += "'" + tl.getTest() + "',";
         sql += " set math=";
         sql += "" + tl.getMath() + ",";
         sql += "english=";
@@ -581,11 +732,89 @@ delete login (id)
         sql += "sum=";
         sql += "" + tl.getSum() + "";
         sql += " where id=";
-        sql += "" + tl.getId() + ";";
+        sql += "" + tl.getId() + " and test=";
+        sql += "'" + tl.getTest() + "';";
         System.out.println(sql);
         stmt.executeUpdate(sql);
         return 0;
     }
+
+    public int updatemarkm(TeachersLoad tl) throws SQLException {
+        String sql = "update seiseki";
+//        sql += " set test=";
+//        sql += "'" + tl.getTest() + "',";
+        sql += " set math=";
+        sql += "" + tl.getMath() + "";
+//        sql += "english=";
+//        sql += "" + tl.getEnglish() + ",";
+//        sql += "langu=";
+//        sql += "" + tl.getLanguage() + ",";
+//        sql += "sum=";
+//        sql += "" + tl.getSum() + "";
+        sql += " where id=";
+        sql += "" + tl.getId() + " and test=";
+        sql += "'" + tl.getTest() + "';";
+        System.out.println(sql);
+        stmt.executeUpdate(sql);
+        return 0;
+    }
+
+    public int updatemarkl(TeachersLoad tl) throws SQLException {
+        String sql = "update seiseki ";
+//        sql += " set test=";
+//        sql += "'" + tl.getTest() + "',";
+//        sql += " set math=";
+//        sql += "" + tl.getMath() + "";
+//        sql += "english=";
+//        sql += "" + tl.getEnglish() + ",";
+        sql += "set langu=";
+        sql += "" + tl.getLanguage() + "";
+//        sql += "sum=";
+//        sql += "" + tl.getSum() + "";
+        sql += " where id=";
+        sql += "" + tl.getId() + " and test=";
+        sql += "'" + tl.getTest() + "';";
+        System.out.println(sql);
+        stmt.executeUpdate(sql);
+        return 0;
+    }
+
+    public int updatemarke(TeachersLoad tl) throws SQLException {
+        String sql = "update seiseki ";
+//        sql += " set test=";
+//        sql += "'" + tl.getTest() + "',";
+//        sql += " set math=";
+//        sql += "" + tl.getMath() + "";
+        sql += "set english=";
+        sql += "" + tl.getEnglish() + "";
+//        sql += "langu=";
+//        sql += "" + tl.getLanguage() + "";
+//        sql += "sum=";
+//        sql += "" + tl.getSum() + "";
+        sql += " where id=";
+        sql += "" + tl.getId() + " and test=";
+        sql += "'" + tl.getTest() + "';";
+        System.out.println(sql);
+        stmt.executeUpdate(sql);
+        return 0;
+    }
+
+    public int selectseiseki(int id, String test) throws SQLException {
+        String sql = "select * from seiseki ";
+        sql += "where id=";
+        sql += "" + id + "and test=";
+        sql += "'" + test + "';";
+        ResultSet rs = stmt.executeQuery(sql);
+        int result = 0;
+        if (rs != null) {
+            while (rs.next()) {
+                result = 1;
+                return result;
+            }
+        }
+        return 0;
+    }
+
 
     /*
     sumを求め　使用なし
@@ -658,6 +887,179 @@ delete login (id)
             }
         }
         return tload;
+    }
+
+    public List<TeachersLoad> selectAlltinfo(String kurasu) throws SQLException {
+        List<TeachersLoad> tload = new ArrayList<>();
+        String sql = "select * from teacherinfo";
+        sql += " where kurasu =";
+        sql += "'" + kurasu + "';";
+        ResultSet rs = stmt.executeQuery(sql);
+        if (rs != null) {
+            while (rs.next()) {
+                TeachersLoad tl = new TeachersLoad();
+                tl.setId(rs.getInt("id"));
+                tl.setPassword(rs.getString("password"));
+                tl.setName(rs.getString("name"));
+                tl.setSex(rs.getString("sex"));
+                tl.setKurasu(rs.getString("kurasu"));
+                tl.setSubject(rs.getString("subject"));
+                tload.add(tl);
+            }
+        }
+        return tload;
+    }
+
+    public List<TeachersLoad> joinseiseki(String kurasu) throws SQLException {
+        List<TeachersLoad> tload = new ArrayList<>();
+        String sql = "select studentinformation.id, "
+                + "seiseki.math,seiseki.english,seiseki.langu,seiseki.test,seiseki.sum from studentinformation inner join seiseki "
+                + "on studentinformation.id=seiseki.id where studentinformation.kurasu ="
+                + "'" + kurasu + "';";
+        System.out.println(sql);
+        ResultSet rs = stmt.executeQuery(sql);
+        if (rs != null) {
+            while (rs.next()) {
+                TeachersLoad tl = new TeachersLoad();
+                tl.setId(rs.getInt("id"));
+//                tl.setName(rs.getString("name"));
+                tl.setTest(rs.getString("test"));
+                tl.setMath(rs.getInt("math"));
+                tl.setLanguage(rs.getInt("langu"));
+                tl.setSum(rs.getInt("sum"));
+                tl.setEnglish(rs.getInt("english"));
+                tload.add(tl);
+            }
+        }
+        return tload;
+    }
+
+    public List<TeachersLoad> seiseki(String kurasu) throws SQLException {
+        List<TeachersLoad> tload = new ArrayList<>();
+        String sql = "select id from seiseki ";
+        sql += " where kurasu =";
+        sql += "'" + kurasu + "';";
+        ResultSet rs = stmt.executeQuery(sql);
+        if (rs != null) {
+            while (rs.next()) {
+                TeachersLoad tl = new TeachersLoad();
+                tl.setId(rs.getInt("id"));
+                tload.add(tl);
+            }
+        }
+        return tload;
+
+    }
+
+    public List<TeachersLoad> seisekiid(int id) throws SQLException {
+        List<TeachersLoad> tload = new ArrayList<>();
+        String sql = "select id,test,math,english,langu,sum from seiseki";
+        sql += " where id =";
+        sql += "" + id + ";";
+        ResultSet rs = stmt.executeQuery(sql);
+        if (rs != null) {
+            while (rs.next()) {
+                TeachersLoad tl = new TeachersLoad();
+                tl.setId(rs.getInt("id"));
+//                tl.setName(rs.getString("name"));
+                tl.setTest(rs.getString("test"));
+                tl.setMath(rs.getInt("math"));
+                tl.setLanguage(rs.getInt("langu"));
+                tl.setSum(rs.getInt("sum"));
+                tl.setEnglish(rs.getInt("english"));
+                tload.add(tl);
+            }
+        }
+        return tload;
+    }
+
+    public int addseiseki(TeachersLoad tl) throws SQLException {
+        String sql = "INSERT INTO seiseki (id)";
+        sql += "VALUES ( " + tl.getId() + ");";
+
+//        conn.commit();
+        stmt.executeUpdate(sql);
+        return 1;
+    }
+
+    public int updateseiseki(TeachersLoad tl) throws SQLException {
+        String sql = "update seiseki";
+        sql += " set name=";
+        sql += "'" + tl.getName() + "'";
+        sql += " where id=";
+        sql += "" + tl.getId() + ";";
+        System.out.println(sql);
+        stmt.executeUpdate(sql);
+        return 0;
+    }
+
+    public int deleteseiseki(int id) throws SQLException {
+        String sql = "delete from seiseki";
+        sql += " where id=";
+        sql += "" + id + ";";
+        stmt.executeUpdate(sql);
+        System.out.println(sql);
+        return 0;
+    }
+
+    public int addseisekis(TeachersLoad tl) throws SQLException {
+        String sql = "update seiseki";
+        sql += " set test=";
+        sql += "'" + tl.getTest() + "',";
+        sql += " math=";
+        sql += "" + tl.getMath() + ",";
+        sql += "english=";
+        sql += "" + tl.getEnglish() + ",";
+        sql += "langu=";
+        sql += "" + tl.getLanguage() + "";
+//        sql += "sum=";
+//        sql += "" + tl.getSum() + "";
+        sql += " where id=";
+        sql += "" + tl.getId() + ";";
+        System.out.println(sql);
+        stmt.executeUpdate(sql);
+        return 0;
+    }
+
+    public int addSeiseki(TeachersLoad tl) throws SQLException {
+        String sql = "INSERT INTO seiseki (id,test,math,english,langu)";
+        sql += "VALUES ( " + tl.getId() + ",";
+        sql += "'" + tl.getTest() + "',";
+        sql += "" + tl.getMath() + ",";
+        sql += "" + tl.getEnglish() + ",";
+        sql += "" + tl.getLanguage() + ")";
+
+//        conn.commit();
+        stmt.executeUpdate(sql);
+        return 1;
+    }
+
+    public int deleteseisekis(int id) throws SQLException {
+        String sql = "delete from seiseki";
+        sql += " where id=";
+        sql += "" + id + ";";
+        stmt.executeUpdate(sql);
+//        System.out.println(sql);
+        return 0;
+    }
+
+//    public int selectsum(int id, String test) throws SQLException {
+//        String sql = "update seiseki set sum=(select SUM(math+english+langu) from seiseki)";
+//        sql += " where id=";
+//        sql += "" + id + "and test=";
+//        sql += "'" + test + "';";
+////        conn.commit();
+//        stmt.executeUpdate(sql);
+//        return 0;
+//    }
+    public int selectsum(int id, String test) throws SQLException {
+        String sql = "update seiseki set sum=math+english+langu";
+        sql += " where id=";
+        sql += "" + id + "and test=";
+        sql += "'" + test + "';";
+//        conn.commit();
+        stmt.executeUpdate(sql);
+        return 0;
     }
 
 }
